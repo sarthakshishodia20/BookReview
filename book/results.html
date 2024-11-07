@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Books API Example</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> <!-- Include Font Awesome -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        #results {
+            display: flex;
+            flex-direction: column; 
+            gap: 20px; 
+        }
+        .genre-section {
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .genre-title {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+        .books-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px; 
+            justify-content: space-between; 
+        }
+        .book {
+            flex: 1 1 calc(23% - 20px); 
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .book img {
+            max-width: 100px;
+            height: auto; 
+        }
+        .heart {
+            cursor: pointer;
+            font-size: 20px;
+            color: #ccc; 
+            margin-top: 10px;
+            transition: color 0.3s; /* Smooth transition for color change */
+        }
+        .heart.filled {
+            color: pink; 
+        }
+        .details-button {
+            margin-top: 10px;
+            padding: 5px 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .details-button:hover {
+            background-color: #45a049;
+        }
+        @media (max-width: 768px) {
+            .book {
+                flex: 1 1 calc(45% - 20px); 
+            }
+        }
+        @media (max-width: 480px) {
+            .book {
+                flex: 1 1 calc(100% - 20px); 
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Search for Books</h1>
+    <input type="text" id="searchInput" placeholder="Enter book title or author...">
+    <button id="searchButton">Search</button>
+    <div id="results"></div>
+
+    <script>
+        const apiKey = 'AIzaSyCqMq6cvfSqW_j_kKticnqxlyitiy_mjIo'; // Replace with your API key
+        const defaultBooks = {
+            "Fiction": [
+                { title: "The Great Gatsby", authors: ["F. Scott Fitzgerald"], thumbnail: "https://covers.openlibrary.org/b/id/7222246-L.jpg" },
+                { title: "To Kill a Mockingbird", authors: ["Harper Lee"], thumbnail: "https://covers.openlibrary.org/b/id/8227263-L.jpg" },
+                { title: "1984", authors: ["George Orwell"], thumbnail: "https://covers.openlibrary.org/b/id/7222116-L.jpg" },
+                { title: "Pride and Prejudice", authors: ["Jane Austen"], thumbnail: "https://covers.openlibrary.org/b/id/11109338-L.jpg" },
+            ],
+            // Other genres and books...
+            "Non-Fiction": [
+                { title: "Sapiens", authors: ["Yuval Noah Harari"], thumbnail: "https://covers.openlibrary.org/b/id/9788440-L.jpg" },
+                { title: "Educated", authors: ["Tara Westover"], thumbnail: "https://covers.openlibrary.org/b/id/8101738-L.jpg" },
+                { title: "Becoming", authors: ["Michelle Obama"], thumbnail: "https://covers.openlibrary.org/b/id/8225178-L.jpg" },
+                { title: "The Immortal Life of Henrietta Lacks", authors: ["Rebecca Skloot"], thumbnail: "https://covers.openlibrary.org/b/id/8273633-L.jpg" },
+            ],
+            "Science Fiction": [
+                { title: "Dune", authors: ["Frank Herbert"], thumbnail: "https://covers.openlibrary.org/b/id/7869720-L.jpg" },
+                { title: "Neuromancer", authors: ["William Gibson"], thumbnail: "https://covers.openlibrary.org/b/id/2562248-L.jpg" },
+                { title: "Foundation", authors: ["Isaac Asimov"], thumbnail: "https://covers.openlibrary.org/b/id/2630563-L.jpg" },
+                { title: "The Left Hand of Darkness", authors: ["Ursula K. Le Guin"], thumbnail: "https://covers.openlibrary.org/b/id/6548783-L.jpg" },
+            ],
+            "Fantasy": [
+                { title: "The Hobbit", authors: ["J.R.R. Tolkien"], thumbnail: "https://covers.openlibrary.org/b/id/8044832-L.jpg" },
+                { title: "A Game of Thrones", authors: ["George R.R. Martin"], thumbnail: "https://covers.openlibrary.org/b/id/1222391-L.jpg" },
+                { title: "Harry Potter and the Sorcerer's Stone", authors: ["J.K. Rowling"], thumbnail: "https://covers.openlibrary.org/b/id/7372103-L.jpg" },
+                { title: "The Name of the Wind", authors: ["Patrick Rothfuss"], thumbnail: "https://covers.openlibrary.org/b/id/17593868-L.jpg" },
+            ],
+            "Mystery": [
+                { title: "The Girl with the Dragon Tattoo", authors: ["Stieg Larsson"], thumbnail: "https://covers.openlibrary.org/b/id/7982206-L.jpg" },
+                { title: "Gone Girl", authors: ["Gillian Flynn"], thumbnail: "https://covers.openlibrary.org/b/id/15558342-L.jpg" },
+                { title: "The Da Vinci Code", authors: ["Dan Brown"], thumbnail: "https://covers.openlibrary.org/b/id/6438387-L.jpg" },
+                { title: "Big Little Lies", authors: ["Liane Moriarty"], thumbnail: "https://covers.openlibrary.org/b/id/8288578-L.jpg" },
+            ],
+            "Romance": [
+                { title: "Pride and Prejudice", authors: ["Jane Austen"], thumbnail: "https://covers.openlibrary.org/b/id/11109338-L.jpg" },
+                { title: "The Notebook", authors: ["Nicholas Sparks"], thumbnail: "https://covers.openlibrary.org/b/id/6791233-L.jpg" },
+                { title: "Me Before You", authors: ["Jojo Moyes"], thumbnail: "https://covers.openlibrary.org/b/id/11395236-L.jpg" },
+                { title: "Outlander", authors: ["Diana Gabaldon"], thumbnail: "https://covers.openlibrary.org/b/id/8129536-L.jpg" },
+            ]
+        };
+
+        function displayDefaultBooks() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = ''; 
+
+            Object.keys(defaultBooks).forEach(genre => {
+                const sectionDiv = document.createElement('div');
+                sectionDiv.classList.add('genre-section');
+
+                const genreTitle = document.createElement('h2');
+                genreTitle.classList.add('genre-title');
+                genreTitle.textContent = genre;
+                sectionDiv.appendChild(genreTitle);
+
+                const booksContainer = document.createElement('div');
+                booksContainer.classList.add('books-container');
+
+                defaultBooks[genre].forEach(book => {
+                    const bookDiv = document.createElement('div');
+                    bookDiv.classList.add('book');
+
+                    bookDiv.innerHTML = `
+                        <h3>${book.title}</h3>
+                        <p><strong>Author(s):</strong> ${book.authors.join(', ')}</p>
+                        ${book.thumbnail ? `<img src="${book.thumbnail}" alt="${book.title} thumbnail">` : ''}
+                        <span class="heart" onclick="toggleWishlist(this)"><i class="far fa-heart"></i></span>
+                        <button class="details-button" onclick="viewDetails('${book.title}', '${book.authors.join(', ')}', '${book.thumbnail}')">Details</button>
+
+                    `;
+
+                    booksContainer.appendChild(bookDiv);
+                });
+
+                sectionDiv.appendChild(booksContainer);
+                resultsDiv.appendChild(sectionDiv);
+            });
+        }
+
+        function toggleWishlist(heartElement) {
+            heartElement.classList.toggle('filled');
+            const icon = heartElement.querySelector('i');
+            const title = heartElement.parentElement.querySelector('h3').innerText;
+            const authors = heartElement.parentElement.querySelector('p').innerText;
+            const thumbnail = heartElement.parentElement.querySelector('img') ? 
+                              heartElement.parentElement.querySelector('img').src : null;
+
+            const wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
+            const bookIndex = wishlist.findIndex(book => book.title === title);
+
+            if (!heartElement.classList.contains('filled')) {
+                if (bookIndex !== -1) {
+                    wishlist.splice(bookIndex, 1);
+                    localStorage.setItem('wishlist', JSON.stringify(wishlist));
+                    alert(`${title} has been removed from your wishlist.`);
+                }
+                icon.classList.remove('fas');
+                icon.classList.add('far');
+            } else {
+                if (bookIndex === -1) {
+                    wishlist.push({ title: title, authors: authors, thumbnail: thumbnail });
+                    localStorage.setItem('wishlist', JSON.stringify(wishlist));
+                    alert(`${title} has been added to your wishlist.`);
+                }
+                icon.classList.remove('far');
+                icon.classList.add('fas');
+            }
+        }
+
+        document.getElementById('searchButton').addEventListener('click', () => {
+            const searchInput = document.getElementById('searchInput').value;
+            searchBooks(searchInput);
+        });
+
+        function searchBooks(query) {
+            const url = `https://www.googleapis.com/books/v1/volumes?q=${query}&key=${apiKey}`;
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    const resultsDiv = document.getElementById('results');
+                    resultsDiv.innerHTML = '';
+                    if (data.items) {
+                        data.items.forEach(item => {
+                            const book = item.volumeInfo;
+                            const bookId = item.id; // Use the unique book ID from Google Books API
+                            
+                            const bookDiv = document.createElement('div');
+                            bookDiv.classList.add('book');
+                            bookDiv.innerHTML = `
+                                <h3>${book.title}</h3>
+                                <p><strong>Author(s):</strong> ${book.authors ? book.authors.join(', ') : 'Unknown'}</p>
+                                ${book.imageLinks ? `<img src="${book.imageLinks.thumbnail}" alt="${book.title} thumbnail">` : ''}
+                                <span class="heart" onclick="toggleWishlist(this)"><i class="far fa-heart"></i></span>
+                                <button class="details-button" onclick="viewDetails('${bookId}', '${book.title}', '${book.authors ? book.authors.join(', ') : ''}', '${book.imageLinks ? book.imageLinks.thumbnail : ''}')">Details</button>
+                            `;
+                            resultsDiv.appendChild(bookDiv);
+                        });
+                        
+                    } else {
+                        resultsDiv.innerHTML = '<p>No results found.</p>';
+                    }
+                })
+                .catch(error => console.error('Error fetching books:', error));
+        }
+
+        function viewDetails(bookId, title, authors, thumbnail) {
+            // Store the book details in localStorage if needed
+            localStorage.setItem('bookTitle', title);
+            localStorage.setItem('bookAuthors', authors);
+            localStorage.setItem('bookThumbnail', thumbnail);
+            
+            // Redirect to the details page with bookId as a query parameter
+            window.location.href = `a.html?bookId=${bookId}`;
+        }
+        
+        
+
+        window.onload = displayDefaultBooks;
+    </script>
+</body>
+</html>

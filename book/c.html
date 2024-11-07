@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Wishlist</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        #wishlist {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .book {
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .book img {
+            max-width: 100px;
+            height: auto; /* Maintain aspect ratio */
+        }
+    </style>
+</head>
+<body>
+    <h1>Your Wishlist</h1>
+    <div id="wishlist"></div>
+
+    <script>
+        function displayWishlist() {
+            const wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
+            const wishlistDiv = document.getElementById('wishlist');
+            wishlistDiv.innerHTML = ''; // Clear previous entries
+
+            if (wishlist.length === 0) {
+                wishlistDiv.innerHTML = '<p>Your wishlist is empty.</p>';
+                return;
+            }
+
+            wishlist.forEach(book => {
+                const bookDiv = document.createElement('div');
+                bookDiv.classList.add('book');
+                bookDiv.innerHTML = `
+                    <h3>${book.title}</h3>
+                    <p><strong>Author(s):</strong> ${book.authors}</p>
+                    ${book.thumbnail ? `<img src="${book.thumbnail}" alt="${book.title} thumbnail">` : ''} <!-- Display thumbnail -->
+                `;
+                wishlistDiv.appendChild(bookDiv);
+            });
+        }
+
+        // Display wishlist on page load
+        displayWishlist();
+    </script>
+</body>
+</html>

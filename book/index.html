@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Haven</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="logo">
+            <h1>Book Haven</h1>
+        </div>
+        <ul class="nav-links">
+            <li><a href="b.html">Explore Books</a></li>
+            <li><a href="index3.html">User Profile</a></li>
+            <li><a href="index5.html">Author Profile</a></li>
+            <li><a href="index4.html">Submit a Review</a></li>
+        </ul>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero">
+        <div class="overlay"></div>
+        <div class="hero-content">
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="Search for books, authors...">
+                <button type="button" id="searchButton">Search</button>
+            </div>
+            <h1>Welcome to Book Haven</h1>
+            <p>Your gateway to a world of books.</p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <section class="highlights">
+            <!-- Top Rated Section -->
+            <section class="category">
+                <h2>Top Rated</h2>
+                <div class="carousel">
+                    <div class="carousel-track auto-slide-track" id="top-rated-track">
+                        <div class="item" id="book1">Book 1</div>
+                        <div class="item" id="book2">Book 2</div>
+                        <div class="item" id="book3">Book 3</div>
+                        <div class="item" id="book4">Book 4</div>
+                        <div class="item" id="book5">Book 5</div>
+                        <div class="item" id="book6">Book 6</div>
+                        <!-- Duplicate items for seamless looping -->
+                        <div class="item" id="book1-duplicate">Book 1</div>
+                        <div class="item" id="book2-duplicate">Book 2</div>
+                        <div class="item" id="book3-duplicate">Book 3</div>
+                        <div class="item" id="book4-duplicate">Book 4</div>
+                        <div class="item" id="book5-duplicate">Book 5</div>
+                        <div class="item" id="book6-duplicate">Book 6</div>
+                    </div>
+                </div>
+            </section>
+    
+            <!-- Recently Added Section -->
+            <section class="category">
+                <h2>Recently Added</h2>
+                <div class="carousel">
+                    <div class="carousel-track" id="recently-added-track">
+                        <div class="item" id="book7">Book 7</div>
+                        <div class="item" id="book8">Book 8</div>
+                        <div class="item" id="book9">Book 9</div>
+                        <div class="item" id="book10">Book 10</div>
+                        <div class="item" id="book11">Book 11</div>
+                        <div class="item" id="book12">Book 12</div>
+                    </div>
+                </div>
+                <button class="prev" data-target="recently-added-track">❮</button>
+                <button class="next" data-target="recently-added-track">❯</button>
+            </section>
+    
+            <!-- Trending Now Section -->
+            <section class="category">
+                <h2>Trending Now</h2>
+                <div class="carousel">
+                    <div class="carousel-track auto-slide-track" id="trending-now-track">
+                        <div class="item" id="book13">Book 13</div>
+                        <div class="item" id="book14">Book 14</div>
+                        <div class="item" id="book15">Book 15</div>
+                        <div class="item" id="book16">Book 16</div>
+                        <div class="item" id="book17">Book 17</div>
+                        <div class="item" id="book18">Book 18</div>
+                        <!-- Duplicate items for seamless looping -->
+                        <div class="item" id="book13-duplicate">Book 13</div>
+                        <div class="item" id="book14-duplicate">Book 14</div>
+                        <div class="item" id="book15-duplicate">Book 15</div>
+                        <div class="item" id="book16-duplicate">Book 16</div>
+                        <div class="item" id="book17-duplicate">Book 17</div>
+                        <div class="item" id="book18-duplicate">Book 18</div>
+                    </div>
+                </div>
+            </section>
+        </section>
+        
+
+        <!-- Quick Links -->
+        <section class="quick-links">
+            <h2>Quick Links</h2>
+            <ul>
+                <li><a href="#">Fiction</a></li>
+                <li><a href="#">Non-Fiction</a></li>
+                <li><a href="#">Science Fiction</a></li>
+                <li><a href="#">Fantasy</a></li>
+                <li><a href="#">Mystery</a></li>
+                <li><a href="#">Romance</a></li>
+            </ul>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2024 Book Haven. All rights reserved.</p>
+    </footer>
+    <script>
+
+        document.getElementById('searchButton').addEventListener('click', function() {
+            const query = document.getElementById('searchInput').value.trim();
+            
+            if (query) {
+                localStorage.setItem('searchQuery', query); // Save the query to local storage
+                window.location.href = 'results.html';      // Redirect to the results page
+            } else {
+                alert('Please enter a search term.');
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Function to initialize auto-sliding for a carousel track
+            function initializeAutoSlide(track) {
+                let isPaused = false;
+                let scrollAmount = 0;
+                const speed = 1; // Adjust the speed as needed
+
+                // Clone the first set of items to create a seamless loop
+                const items = track.children;
+                const totalScrollWidth = track.scrollWidth / 2; // Because of duplicated items
+
+                // Function to handle the sliding
+                function slideCarousel() {
+                    if (!isPaused) {
+                        scrollAmount -= speed;
+                        if (Math.abs(scrollAmount) >= totalScrollWidth) {
+                            scrollAmount = 0;
+                        }
+                        track.style.transform = `translateX(${scrollAmount}px)`;
+                    }
+                    requestAnimationFrame(slideCarousel);
+                }
+
+                // Start sliding
+                slideCarousel();
+
+                // Pause on hover
+                track.parentElement.addEventListener('mouseenter', () => {
+                    isPaused = true;
+                });
+
+                track.parentElement.addEventListener('mouseleave', () => {
+                    isPaused = false;
+                });
+            }
+
+            // Initialize auto-slide for all tracks with class 'auto-slide-track'
+            const autoSlideTracks = document.querySelectorAll('.auto-slide-track');
+            autoSlideTracks.forEach(track => {
+                initializeAutoSlide(track);
+            });
+
+            // Navigation for Recently Added Section
+            const prevButtons = document.querySelectorAll('.prev');
+            const nextButtons = document.querySelectorAll('.next');
+
+            prevButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const targetId = button.getAttribute('data-target');
+                    const track = document.getElementById(targetId);
+                    slideBy(track, 200); // Adjust the slide amount as needed
+                });
+            });
+
+            nextButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const targetId = button.getAttribute('data-target');
+                    const track = document.getElementById(targetId);
+                    slideBy(track, -200); // Adjust the slide amount as needed
+                });
+            });
+
+            // Function to handle manual sliding
+            function slideBy(track, amount) {
+                const currentTransform = getTranslateX(track.style.transform);
+                let newTransform = currentTransform + amount;
+
+                // Boundary checks
+                const maxTransform = 0;
+                const minTransform = -(track.scrollWidth / 2);
+
+                if (newTransform > maxTransform) {
+                    newTransform = maxTransform;
+                } else if (newTransform < minTransform) {
+                    newTransform = minTransform;
+                }
+
+                track.style.transform = `translateX(${newTransform}px)`;
+            }
+
+            // Helper function to get the current translateX value
+            function getTranslateX(transform) {
+                if (transform) {
+                    const match = transform.match(/translateX\((-?\d+)px\)/);
+                    return match ? parseInt(match[1], 10) : 0;
+                }
+                return 0;
+            }
+        });
+    </script>
+</body>
+</html>

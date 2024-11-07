@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit a Review</title>
+    <link rel="stylesheet" href="style4.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h1>Submit a Review</h1>
+        <form class="review-form" id="reviewForm">
+            <div class="form-group">
+                <label for="book-title">Book Title</label>
+                <input type="text" id="book-title" name="book-title" required>
+            </div>
+
+            <div class="form-group">
+                <label for="author">Author</label>
+                <input type="text" id="author" name="author" required>
+            </div>
+
+            <div class="form-group">
+                <label for="rating">Rating</label>
+                <select id="rating" name="rating" required>
+                    <option value="">Select a rating</option>
+                    <option value="5">★★★★★</option>
+                    <option value="4">★★★★☆</option>
+                    <option value="3">★★★☆☆</option>
+                    <option value="2">★★☆☆☆</option>
+                    <option value="1">★☆☆☆☆</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="review-text">Review</label>
+                <textarea id="review-text" name="review-text" rows="5" required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="keywords">Tag Keywords</label>
+                <input type="text" id="keywords" name="keywords" placeholder="e.g., fast-paced, romantic">
+            </div>
+
+            <div class="form-group">
+                <label for="visibility">Visibility</label>
+                <select id="visibility" name="visibility">
+                    <option value="public">Public</option>
+                    <option value="friends">Friends Only</option>
+                    <option value="private">Private</option>
+                </select>
+            </div>
+
+            <button type="submit" class="submit-btn">Submit Review</button>
+        </form>
+        <p id="successMessage" style="display: none; color: green; text-align: center; margin-top: 20px;">
+            Your review has been submitted successfully!
+        </p>
+    </div>
+
+    <script>
+        document.getElementById('reviewForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            // Form validation
+            const form = event.target;
+            const formData = new FormData(form);
+            let isValid = true;
+
+            for (let [key, value] of formData.entries()) {
+                if (!value.trim()) {
+                    isValid = false;
+                    break;
+                }
+            }
+
+            if (isValid) {
+                // Display success message
+                document.getElementById('successMessage').style.display = 'block';
+
+                // Optional: Reset form after showing message
+                // form.reset();
+            } else {
+                alert('Please fill out all required fields.');
+            }
+        });
+    </script>
+</body>
+</html>
